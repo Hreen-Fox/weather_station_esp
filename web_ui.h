@@ -13,5 +13,5 @@ const char SUCCESS_PAGE[] PROGMEM = R"rawliteral(
 <p>Устройство перезагрузится через 3 секунды...</p>
 </body></html>
 )rawliteral";
-
+ 
 #endif

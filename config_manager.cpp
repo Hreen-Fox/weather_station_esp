@@ -17,7 +17,7 @@ void loadConfig() {
       Serial.println("✅ Конфигурация загружена");
     }
   }
-}
+} 
 
 void saveConfig() {
   if (!LittleFS.begin()) return;

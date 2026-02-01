@@ -15,4 +15,4 @@ void loadConfig();
 void saveConfig();
 bool isValidConfig();
 
-#endif
+#endif 

@@ -20,7 +20,7 @@ String scanNetworksHTML() {
     }
   }
   return networks;
-}
+} 
 
 // Генерация тестовых данных в реальном времени
 String getRealTimeData() {
