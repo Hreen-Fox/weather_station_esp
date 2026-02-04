@@ -6,6 +6,10 @@
 extern ESP8266WebServer server;
 
 void initSetupWebServer();
-void handleSetupRequests();
+void handleSetupWebRequests();
+void handleSetupPage();
+void handleScanNetworks();
+void handleSaveWiFi();
+void handleApiStatus();
 
-#endif 
+#endif

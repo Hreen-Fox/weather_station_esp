@@ -1,37 +1,47 @@
 #include "config_manager.h"
 #include <LittleFS.h>
 
-DeviceConfig config = {"", "", false};
+// Инициализация с реалистичными значениями по умолчанию
+SystemConfig config = {
+  "",           // wifiSSID
+  "",           // wifiPassword  
+  1,            // maxClients
+  5,            // updateInterval (5 секунд)
+  false,        // firstSetupDone
+  
+  // Настройки генерации данных
+  22.0,         // tempBase - базовая температура 22°C
+  3.0,          // tempAmplitude - колебания ±3°C
+  45.0,         // humBase - базовая влажность 45%
+  10.0          // humAmplitude - колебания ±10%
+};
 
 void loadConfig() {
   if (!LittleFS.begin()) {
-    Serial.println("❌ LittleFS не инициализирован");
     return;
   }
   
   if (LittleFS.exists("/config.dat")) {
-    File file = LittleFS.open("/config.dat", "r");
-    if (file) {
-      file.readBytes((char*)&config, sizeof(DeviceConfig));
-      file.close();
-      Serial.println("✅ Конфигурация загружена");
+    File configFile = LittleFS.open("/config.dat", "r");
+    if (configFile) {
+      configFile.readBytes((char*)&config, sizeof(SystemConfig));
+      configFile.close();
     }
-  }
-} 
-
-void saveConfig() {
-  if (!LittleFS.begin()) return;
-  
-  File file = LittleFS.open("/config.dat", "w");
-  if (file) {
-    file.write((uint8_t*)&config, sizeof(DeviceConfig));
-    file.close();
-    Serial.println("💾 Конфигурация сохранена");
   }
 }
 
-bool isValidConfig() {
-  return config.isConfigured && 
-         strlen(config.wifiSSID) > 0 && 
-         strlen(config.wifiPassword) > 0;
+void saveConfig() {
+  if (!LittleFS.begin()) {
+    return;
+  }
+  
+  File configFile = LittleFS.open("/config.dat", "w");
+  if (configFile) {
+    configFile.write((uint8_t*)&config, sizeof(SystemConfig));
+    configFile.close();
+  }
+}
+
+bool isFirstSetupDone() {
+  return config.firstSetupDone;
 }

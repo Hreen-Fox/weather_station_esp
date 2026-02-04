@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📱 ESP-12E ESP8266 - Статус</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            padding: 7px;
+            margin: 7px;
+            background: #f5f5f5
+        }
+        .container {
+            max-width: 650px;
+            background: white;
+            padding: 14px;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            margin: 0 auto;
+        }
+        .panel {
+            background: #e8f4fd;
+            padding: 14px;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+        .btn-nav {
+            text-align: center;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 7px;
+        }
+        .btn-nav a {
+            display: inline-block;
+            padding: 8px 16px;
+            background: #1a73e8;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+        h2 {
+            color: #1a73e8;
+            text-align: center;
+            margin: 0;
+            font-size: 1.4rem;
+        }
+        .panel-title {
+            margin: 0;
+            padding-bottom: 7px;
+            border-bottom: 1px solid #d0e8fc;
+        }
+        .panel-row {
+            display: flex;
+            font-size: 0.9rem;
+        }
+        .panel-row > *{
+            width: 100%;
+            vertical-align: text-bottom;
+        }
+        .panel-row > .panel-value:nth-child(3) {
+            color: #666; 
+            font-style: italic; 
+            text-align: right;
+        }
+        .panel-label {
+            font-weight: bold;
+            color: #5f6368;
+            padding-right: 8px;
+        }
+        .panel-value {
+            color: #202124;
+        }
+    </style>
+</head>
+<body>
+    <div class='container'>
+
+        <div class="panel">
+            <div class="btn-nav">
+                <a href="/">Стаус</a>
+                <a href="/settings">Настройки</a>
+                <a href="/sensors">Датчики</a>
+                <a href="/attributes">Характеристики</a>
+            </div>
+        </div>
+<h2>🌡️ Данные метеостанции</h2>
+
+        <div class='panel'>
+            <div class="sensor-large">
+                <div class="sensor-value" id="temperature">--.-</div>
+                <div class="sensor-unit">°C</div>
+            </div>
+            <div class="sensor-large">
+                <div class="sensor-value" id="humidity">--</div>
+                <div class="sensor-unit">%</div>
+            </div>
+            <div class="sensor-large">
+                <div class="sensor-value" id="pressure">---</div>
+                <div class="sensor-unit">мм рт.ст.</div>
+            </div>
+        </div>
+
+        <div class='panel'>
+            <h3 class="panel-title">Системная информация</h3>
+            <div class='data-row'>
+                <span class='data-label'>Свободная RAM:</span>
+                <span class='data-value' id="freeHeap">-- KB</span>
+            </div>
+            <div class='data-row'>
+                <span class='data-label'>Время работы:</span>
+                <span class='data-value' id="uptime">-- ч -- мин</span>
+            </div>
+            <div class='data-row'>
+                <span class='data-label'>Подключено устройств:</span>
+                <span class='data-value' id="connectedDevices">--</span>
+            </div>
+            <div class='data-row'>
+                <span class='data-label'>Использование памяти:</span>
+                <span class='data-value' id="memoryUsage">--%</span>
+            </div>
+            <div id="memoryBar" class="memory-bar">
+                <div class="memory-fill" style="width: 0%"></div>
+            </div>
+        </div>
+
+        <div class='panel'>
+            <h3 class="panel-title">Статус подключения</h3>
+            <div class='data-row'>
+                <span class='data-label'>Wi-Fi статус:</span>
+                <span class='data-value'><span class="status-indicator status-online" id="wifiStatus"></span><span id="wifiStatusText">Онлайн</span></span>
+            </div>
+            <div class='data-row'>
+                <span class='data-label'>IP адрес:</span>
+                <span class='data-value' id="ipAddress">192.168.4.1</span>
+            </div>
+        </div>
+
+        <div class="last-update" id="lastUpdate">
+            Последнее обновление: --
+        </div>
+
+        <button class="refresh-btn" onclick="updateData()">🔄 Обновить данные</button>
+
+        <script>
+            // Функция форматирования времени работы
+            function formatUptime(seconds) {
+                const days = Math.floor(seconds / 86400);
+                const hours = Math.floor((seconds % 86400) / 3600);
+                const minutes = Math.floor((seconds % 3600) / 60);
+                
+                if (days > 0) {
+                    return `${days} дн ${hours} ч ${minutes} мин`;
+                } else if (hours > 0) {
+                    return `${hours} ч ${minutes} мин`;
+                } else {
+                    return `${minutes} мин`;
+                }
+            }
+
+            // Функция обновления данных
+            function updateData() {
+                fetch('/api/status')
+                    .then(response => response.json())
+                    .then(data => {
+                        // Обновляем метеоданные
+                        document.getElementById('temperature').textContent = data.temperature.toFixed(1);
+                        document.getElementById('humidity').textContent = data.humidity;
+                        document.getElementById('pressure').textContent = data.pressure;
+                        
+                        // Обновляем системную информацию
+                        document.getElementById('freeHeap').textContent = (data.freeHeap / 1024).toFixed(1) + ' KB';
+                        document.getElementById('uptime').textContent = formatUptime(data.uptime);
+                        document.getElementById('connectedDevices').textContent = data.connectedDevices;
+                        
+                        // Обновляем использование памяти
+                        const memoryUsage = ((data.totalHeap - data.freeHeap) / data.totalHeap * 100).toFixed(1);
+                        document.getElementById('memoryUsage').textContent = memoryUsage + '%';
+                        document.querySelector('.memory-fill').style.width = memoryUsage + '%';
+                        
+                        // Обновляем статус Wi-Fi
+                        const wifiOnline = data.wifiConnected;
+                        const wifiIndicator = document.getElementById('wifiStatus');
+                        const wifiText = document.getElementById('wifiStatusText');
+                        
+                        if (wifiOnline) {
+                            wifiIndicator.className = 'status-indicator status-online';
+                            wifiText.textContent = 'Онлайн';
+                        } else {
+                            wifiIndicator.className = 'status-indicator status-offline';
+                            wifiText.textContent = 'Оффлайн';
+                        }
+                        
+                        document.getElementById('ipAddress').textContent = data.ipAddress;
+                        
+                        // Обновляем время последнего обновления
+                        const now = new Date();
+                        document.getElementById('lastUpdate').textContent = 
+                            `Последнее обновление: ${now.toLocaleTimeString()}`;
+                    })
+                    .catch(error => {
+                        console.error('Ошибка загрузки данных:', error);
+                        // Можно добавить индикацию ошибки
+                    });
+            }
+
+            // Автоматическое обновление каждые 2 секунды
+            setInterval(updateData, 2000);
+
+            // Первое обновление при загрузке страницы
+            document.addEventListener('DOMContentLoaded', function() {
+                updateData();
+            });
+        </script>
+    </div>
+    </div>
+</body>
+</html>

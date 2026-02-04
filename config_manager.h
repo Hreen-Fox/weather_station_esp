@@ -3,16 +3,24 @@
 
 #include <Arduino.h>
 
-struct DeviceConfig {
+struct SystemConfig {
   char wifiSSID[32];
   char wifiPassword[64];
-  bool isConfigured;
+  uint8_t maxClients;
+  uint16_t updateInterval;     // Интервал обновления данных (секунды)
+  bool firstSetupDone;
+  
+  // Настройки генерации данных датчиков
+  float tempBase;              // Базовая температура (°C)
+  float tempAmplitude;         // Амплитуда колебаний температуры
+  float humBase;               // Базовая влажность (%)
+  float humAmplitude;          // Амплитуда колебаний влажности
 };
 
-extern DeviceConfig config;
+extern SystemConfig config;
 
 void loadConfig();
 void saveConfig();
-bool isValidConfig();
+bool isFirstSetupDone();
 
-#endif 
+#endif

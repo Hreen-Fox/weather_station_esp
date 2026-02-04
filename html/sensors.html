@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📱 ESP-12E ESP8266 - Датчики</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            padding: 7px;
+            margin: 7px;
+            background: #f5f5f5
+        }
+        .container {
+            max-width: 650px;
+            background: white;
+            padding: 14px;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            margin: 0 auto;
+        }
+        .panel {
+            background: #e8f4fd;
+            padding: 14px;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+        .btn-nav {
+            text-align: center;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 7px;
+        }
+        .btn-nav a {
+            display: inline-block;
+            padding: 8px 16px;
+            background: #1a73e8;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+        h2 {
+            color: #1a73e8;
+            text-align: center;
+            margin: 0;
+            font-size: 1.4rem;
+        }
+        .panel-title {
+            margin: 0;
+            padding-bottom: 7px;
+            border-bottom: 1px solid #d0e8fc;
+        }
+        .panel-row {
+            display: flex;
+            font-size: 0.9rem;
+        }
+        .panel-row > *{
+            width: 100%;
+            vertical-align: text-bottom;
+        }
+        .panel-row > .panel-value:nth-child(3) {
+            color: #666; 
+            font-style: italic; 
+            text-align: right;
+        }
+        .panel-label {
+            font-weight: bold;
+            color: #5f6368;
+            padding-right: 8px;
+        }
+        .panel-value {
+            color: #202124;
+        }
+    </style>
+</head>
+<body>
+    <div class='container'>
+
+        <div class="panel">
+            <div class="btn-nav">
+                <a href="/">Стаус</a>
+                <a href="/settings">Настройки</a>
+                <a href="/sensors">Датчики</a>
+                <a href="/attributes">Характеристики</a>
+            </div>
+        </div>
+
+    </div>
+</body>
+</html>

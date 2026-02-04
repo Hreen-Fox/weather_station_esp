@@ -1,0 +1,181 @@
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, sans-serif;
+    padding: 24px;
+    background: #fafafa;
+    color: #2d3748;
+    line-height: 1.5;
+    margin: 0;
+}
+
+h1 {
+    text-align: center;
+    font-weight: 600;
+    font-size: 1.8rem;
+    margin: 0 0 24px;
+    color: #1a202c;
+}
+
+/* Переключатель типа файла */
+.type-compressor {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+}
+
+.type-compressor span {
+    font-weight: 500;
+    color: #4a5568;
+}
+
+.type-compressor label {
+    cursor: pointer;
+    padding: 6px 12px;
+    border-radius: 6px;
+    background: #edf2f7;
+    color: #4a5568;
+    font-size: 0.95rem;
+    transition: all 0.2s ease;
+}
+
+.type-compressor input[type="radio"] {
+    display: none;
+}
+
+.type-compressor input[type="radio"]:checked + label {
+    background: #48bb78;
+    color: white;
+}
+
+/* Основная область */
+.area {
+    display: flex;
+    gap: 20px;
+    height: 60vh;
+    margin-bottom: 20px;
+}
+
+.left,
+.right {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+/* Верхняя панель с заголовком и кнопками */
+.top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.top label {
+    font-weight: 600;
+    font-size: 1.1rem;
+    color: #2d3748;
+}
+
+.btn-list {
+    display: flex;
+    gap: 8px;
+}
+
+button {
+    padding: 8px 16px;
+    background: #48bb78;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.95rem;
+    font-weight: 500;
+    transition: background 0.2s ease, transform 0.1s ease;
+}
+
+button:hover {
+    background: #38a169;
+}
+
+button:active {
+    transform: translateY(1px);
+}
+
+button:focus {
+    outline: 2px solid #a0aec0;
+    outline-offset: 2px;
+}
+
+/* Текстовые поля */
+textarea {
+    width: 100%;
+    flex: 1;
+    padding: 12px;
+    font-family: 'SF Mono', 'Monaco', 'Inconsolata', monospace;
+    font-size: 14px;
+    resize: none;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    background: white;
+    color: #2d3748;
+    transition: border-color 0.2s ease;
+}
+
+textarea:focus {
+    outline: none;
+    border-color: #48bb78;
+    box-shadow: 0 0 0 2px rgba(72, 187, 120, 0.2);
+}
+
+/* Статистика */
+.stats {
+    text-align: center;
+    font-size: 0.95rem;
+    color: #718096;
+    padding: 8px;
+    background: #edf2f7;
+    border-radius: 6px;
+    font-family: monospace;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .area {
+        flex-direction: column;
+        height: auto;
+        gap: 16px;
+    }
+
+    h1 {
+        font-size: 1.5rem;
+        margin-bottom: 20px;
+    }
+
+    .type-compressor {
+        gap: 8px;
+        margin-bottom: 20px;
+    }
+
+    .top {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+
+    .btn-list {
+        align-self: flex-end;
+    }
+}
+
+
+/*
+время - 10:20
+дата - 06.02.26
+кабинет - 801 библиотека
+*/

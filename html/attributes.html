@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset='UTF-8'>
+    <meta name='viewport' content='width=device-width'>
+    <title>📱 ESP-12E ESP8266 - Характеристики</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            padding: 7px;
+            margin: 7px;
+            background: #f5f5f5
+        }
+        .container {
+            max-width: 650px;
+            background: white;
+            padding: 14px;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            margin: 0 auto;
+        }
+        .panel {
+            background: #e8f4fd;
+            padding: 14px;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+        .btn-nav {
+            text-align: center;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 7px;
+        }
+        .btn-nav a {
+            display: inline-block;
+            padding: 8px 16px;
+            background: #1a73e8;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+        h2 {
+            color: #1a73e8;
+            text-align: center;
+            margin: 0;
+            font-size: 1.4rem;
+        }
+        .panel-title {
+            margin: 0;
+            padding-bottom: 7px;
+            border-bottom: 1px solid #d0e8fc;
+        }
+        .panel-row {
+            display: flex;
+            font-size: 0.9rem;
+        }
+        .panel-row > *{
+            width: 100%;
+            vertical-align: text-bottom;
+        }
+        .panel-row > .panel-value:nth-child(3) {
+            color: #666; 
+            font-style: italic; 
+            text-align: right;
+        }
+        .panel-label {
+            font-weight: bold;
+            color: #5f6368;
+            padding-right: 8px;
+        }
+        .panel-value {
+            color: #202124;
+        }
+    </style>
+</head>
+
+<body>
+    <div class='container'>
+
+        <div class="panel">
+            <div class="btn-nav">
+                <a href="/">Стаус</a>
+                <a href="/settings">Настройки</a>
+                <a href="/sensors">Датчики</a>
+                <a href="/attributes">Характеристики</a>
+            </div>
+        </div>
+
+        <h2>🔧 Аппаратные характеристики ESP8266</h2>
+
+        <div class='panel'>
+            <h3 class="panel-title">Основные параметры</h3>
+            <div class='panel-row'><span class='panel-label'>Микроконтроллер:</span><span class='panel-value'>ESP8266EX (Tensilica L106 32-bit RISC)</span></div>
+            <div class='panel-row'><span class='panel-label'>Тактовая частота:</span><span class='panel-value'>80 МГц (макс. 160 МГц)</span></div>
+            <div class='panel-row'><span class='panel-label'>Оперативная память:</span><span class='panel-value'>80 КБ пользовательской + 32 КБ инструкций</span></div>
+            <div class='panel-row'><span class='panel-label'>Флеш-память:</span><span class='panel-value'>4 МБ (встроенная на модуле)</span></div>
+            <div class='panel-row'><span class='panel-label'>Рабочее напряжение:</span><span class='panel-value'>3.3 В</span></div>
+            <div class='panel-row'><span class='panel-label'>Потребление тока:</span><span class='panel-value'>До 215 мА (при передаче Wi-Fi)</span></div>
+        </div>
+        
+        <div class='panel'>
+            <h3 class="panel-title">Физические характеристики</h3>
+            <div class='panel-row'><span class='panel-label'>Размеры:</span><span class='panel-value'>24 × 16 мм</span></div>
+            <div class='panel-row'><span class='panel-label'>Вес:</span><span class='panel-value'>~2 г</span></div>
+            <div class='panel-row'><span class='panel-label'>Рабочая температура:</span><span class='panel-value'>-40°C до +125°C</span></div>
+        </div>
+
+        <h2>📶 Wi-Fi и сетевые возможности</h2>
+
+        <div class='panel'>
+            <h3 class="panel-title">Wi-Fi параметры</h3>
+            <div class='panel-row'><span class='panel-label'>Стандарт:</span><span class='panel-value'>IEEE 802.11 b/g/n</span></div>
+            <div class='panel-row'><span class='panel-label'>Частота:</span><span class='panel-value'>2.4 ГГц</span></div>
+            <div class='panel-row'><span class='panel-label'>Режимы работы:</span><span class='panel-value'>Station (STA), Access Point (AP), STA+AP</span></div>
+            <div class='panel-row'><span class='panel-label'>Безопасность:</span><span class='panel-value'>WPA/WPA2/WPA2-Enterprise/WPS</span></div>
+            <div class='panel-row'><span class='panel-label'>Макс. скорость:</span><span class='panel-value'>72.2 Мбит/с</span></div>
+        </div>
+        
+        <div class='panel'>
+            <h3 class="panel-title">Производительность веб-сервера</h3>
+            <div class='panel-row'><span class='panel-label'>Одновременные подключения:</span><span class='panel-value'>до 4-5 клиентов</span></div>
+            <div class='panel-row'><span class='panel-label'>Пропускная способность:</span><span class='panel-value'>~1-2 Мбит/с</span></div>
+            <div class='panel-row'><span class='panel-label'>Время отклика:</span><span class='panel-value'>&lt; 50 мс для простых запросов</span></div>
+        </div>
+
+        <h2>🔌 Порты и периферийные интерфейсы</h2>
+
+        <div class='panel'>
+            <h3 class="panel-title">Доступные интерфейсы</h3>
+            <div class='panel-row'><span class='panel-label'>GPIO:</span><span class='panel-value'>11 доступных</span><span class='panel-value'>Из 17 физических пинов</span></div>
+            <div class='panel-row'><span class='panel-label'>ADC:</span><span class='panel-value'>1 канал</span><span class='panel-value'>10-битный, диапазон 0-1 В</span></div>
+            <div class='panel-row'><span class='panel-label'>UART:</span><span class='panel-value'>2</span><span class='panel-value'>UART0 (TX/RX), UART1 (только TX)</span></div>
+            <div class='panel-row'><span class='panel-label'>SPI:</span><span class='panel-value'>2</span><span class='panel-value'>HSPI и VSPI</span></div>
+            <div class='panel-row'><span class='panel-label'>I²C:</span><span class='panel-value'>Программный</span><span class='panel-value'>Через любые GPIO</span></div>
+            <div class='panel-row'><span class='panel-label'>I²S:</span><span class='panel-value'>1</span><span class='panel-value'>Для аудио приложений</span></div>
+            <div class='panel-row'><span class='panel-label'>PWM:</span><span class='panel-value'>До 16 каналов</span><span class='panel-value'>Через программную реализацию</span></div>
+        </div>
+
+        <h2>⚙️ Конфигурация прошивки</h2>
+
+        <div class='panel'>
+            <h3 class="panel-title">Параметры компиляции</h3>
+            <div class='panel-row'><span class='panel-label'>Flash Size:</span><span class='panel-value'>4MB (FS:3MB OTA:~0KB)</span></div>
+            <div class='panel-row'><span class='panel-label'>CPU Frequency:</span><span class='panel-value'>80 MHz</span></div>
+            <div class='panel-row'><span class='panel-label'>Upload Speed:</span><span class='panel-value'>115200</span></div>
+            <div class='panel-row'><span class='panel-label'>Built-in Led:</span><span class='panel-value'>GPIO2</span></div>
+            <div class='panel-row'><span class='panel-label'>IwIP Variant:</span><span class='panel-value'>v2 Lower Memory</span></div>
+            <div class='panel-row'><span class='panel-label'>MMU:</span><span class='panel-value'>32KB cache + 32KB IRAM (balanced)</span></div>
+            <div class='panel-row'><span class='panel-label'>C++ Exceptions:</span><span class='panel-value'>Disabled</span></div>
+            <div class='panel-row'><span class='panel-label'>Debug Level:</span><span class='panel-value'>None</span></div>
+            <div class='panel-row'><span class='panel-label'>SSL Support:</span><span class='panel-value'>All SSL ciphers</span></div>
+            <div class='panel-row'><span class='panel-label'>Stack Protection:</span><span class='panel-value'>Disabled</span></div>
+            <div class='panel-row'><span class='panel-label'>VTables:</span><span class='panel-value'>Flash</span></div>
+            <div class='panel-row'><span class='panel-label'>Erase Flash:</span><span class='panel-value'>Only Sketch</span></div>
+            <div class='panel-row'><span class='panel-label'>Non-32-Bit Access:</span><span class='panel-value'>Use pgm_read_macros</span></div>
+        </div>
+
+        <h2>🎯 Особенности проекта</h2>
+
+        <div class='panel'>
+            <h3 class="panel-title">Реализованная функциональность</h3>
+            <div class='panel-row'><span class='panel-label'>Режим работы:</span><span class='panel-value'>Точка доступа (AP)</span><span class='panel-value'>Для настройки устройства</span></div>
+            <div class='panel-row'><span class='panel-label'>Файловая система:</span><span class='panel-value'>LittleFS, 3 МБ</span><span class='panel-value'>Для хранения данных</span></div>
+            <div class='panel-row'><span class='panel-label'>Веб-интерфейс:</span><span class='panel-value'>HTML/CSS/JS</span><span class='panel-value'>С динамическим обновлением</span></div>
+            <div class='panel-row'><span class='panel-label'>Обновление данных:</span><span class='panel-value'>Каждые 2 сек</span><span class='panel-value'>В реальном времени</span></div>
+            <div class='panel-row'><span class='panel-label'>Хранение конфигурации:</span><span class='panel-value'>Бинарный файл</span><span class='panel-value'>В LittleFS</span></div>
+            <div class='panel-row'><span class='panel-label'>Потребление RAM:</span><span class='panel-value'>~25-30 КБ</span><span class='panel-value'>Из 80 КБ доступных</span></div>
+            <div class='panel-row'><span class='panel-label'>Поддержка AP+STA:</span><span class='panel-value'>Реализована</span><span class='panel-value'>Потенциал для расширения</span></div>
+            <div class='panel-row'><span class='panel-label'>Интервал логирования:</span><span class='panel-value'>Каждые 5 мин</span><span class='panel-value'>Заглушка для теста</span></div>
+        </div>
+
+    </div>
+
+</body>
+
+</html>

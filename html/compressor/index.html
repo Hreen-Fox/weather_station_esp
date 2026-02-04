@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Компрессор html, css и js</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+
+    <h1>Компрессор HTML / CSS / JS</h1>
+
+    <div class="type-compressor">
+        <span>Файл:</span>
+        <input type="radio" name="fileType" id="html" value="html" checked>
+        <label for="html">HTML</label>
+        <input type="radio" name="fileType" id="css" value="css">
+        <label for="css">CSS</label>
+        <input type="radio" name="fileType" id="js" value="js">
+        <label for="js">JS</label>
+    </div>
+
+    <div class="area">
+        <div class="left">
+            <div class="top">
+                <label for="input">Вставьте код:</label>
+                <div class="btn-list">
+                    <button type="button" onclick="compress()">Сжать</button>
+                    <button type="button" onclick="clearInput()">Очистить</button>
+                </div>
+            </div>
+            <textarea id="input" placeholder="Вставьте ваш HTML, CSS или JavaScript"></textarea>
+        </div>
+
+        <div class="right">
+            <div class="top">
+                <label for="output">Результат:</label>
+                <div class="btn-list">
+                    <button type="button" onclick="copyResult()">Скопировать</button>
+                </div>
+            </div>
+            <textarea id="output" readonly></textarea>
+        </div>
+    </div>
+
+    <div class="stats" id="stats">Исходный размер: 0 байт | Сжатый: — байт | Сжатие: —%</div>
+
+    <script src="js/index.js"></script>
+
+</body>
+
+</html>

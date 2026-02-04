@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📱 ESP-12E ESP8266 - Настройки</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            padding: 7px;
+            margin: 7px;
+            background: #f5f5f5
+        }
+        .container {
+            max-width: 650px;
+            background: white;
+            padding: 14px;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            margin: 0 auto;
+        }
+        .panel {
+            background: #e8f4fd;
+            padding: 14px;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+        .btn-nav {
+            text-align: center;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 7px;
+        }
+        .btn-nav a {
+            display: inline-block;
+            padding: 8px 16px;
+            background: #1a73e8;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+        h2 {
+            color: #1a73e8;
+            text-align: center;
+            margin: 0;
+            font-size: 1.4rem;
+        }
+        .panel-title {
+            margin: 0;
+            padding-bottom: 7px;
+            border-bottom: 1px solid #d0e8fc;
+        }
+        .panel-row {
+            display: flex;
+            font-size: 0.9rem;
+        }
+        .panel-row > *{
+            width: 100%;
+            vertical-align: text-bottom;
+        }
+        .panel-row > .panel-value:nth-child(3) {
+            color: #666; 
+            font-style: italic; 
+            text-align: right;
+        }
+        .panel-label {
+            font-weight: bold;
+            color: #5f6368;
+            padding-right: 8px;
+        }
+        .panel-value {
+            color: #202124;
+        }
+    </style>
+</head>
+<body>
+    <div class='container'>
+
+        <div class="panel">
+            <div class="btn-nav">
+                <a href="/">Стаус</a>
+                <a href="/settings">Настройки</a>
+                <a href="/sensors">Датчики</a>
+                <a href="/attributes">Характеристики</a>
+            </div>
+        </div>
+
+        <h2>🔧 Настройки Wi-Fi</h2>
+
+        <div class='panel'>
+            <h3 class="panel-title">Сканирование сетей</h3>
+            <div id="scanStatus" class="loading">Сканирование доступных сетей...</div>
+            <div id="networksList"></div>
+            <button onclick="scanNetworks()" id="scanBtn">🔄 Обновить список</button>
+        </div>
+
+        <div class='panel'>
+            <h3 class="panel-title">Подключение к сети</h3>
+            <form method='POST' action='/save' id="wifiForm">
+                <div class='form-group'>
+                    <label for='ssid'>Имя сети (SSID):</label>
+                    <input type='text' id='ssid' name='ssid' placeholder='Введите SSID' required>
+                </div>
+                <div class='form-group'>
+                    <label for='password'>Пароль:</label>
+                    <input type='password' id='password' name='password' placeholder='Введите пароль' required>
+                </div>
+                <button type='submit'>💾 Сохранить настройки</button>
+            </form>
+        </div>
+
+        <div class='panel'>
+            <h3 class="panel-title">Текущая конфигурация</h3>
+            <div id="currentConfig" class="loading">Загрузка текущих настроек...</div>
+        </div>
+
+        <script>
+            // Функция сканирования сетей
+            function scanNetworks() {
+                const scanBtn = document.getElementById('scanBtn');
+                const scanStatus = document.getElementById('scanStatus');
+                const networksList = document.getElementById('networksList');
+                
+                scanBtn.disabled = true;
+                scanStatus.textContent = 'Сканирование...';
+                networksList.innerHTML = '';
+                
+                fetch('/api/networks')
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.networks && data.networks.length > 0) {
+                            scanStatus.textContent = `Найдено ${data.networks.length} сетей:`;
+                            data.networks.forEach(network => {
+                                const networkDiv = document.createElement('div');
+                                networkDiv.className = 'network-item';
+                                networkDiv.innerHTML = `
+                                    <div class="network-info">
+                                        <div class="network-name">${network.ssid}</div>
+                                        <div class="network-rssi">Сигнал: ${network.rssi} dBm</div>
+                                    </div>
+                                    <button class="network-select" onclick="selectNetwork('${network.ssid}')">Выбрать</button>
+                                `;
+                                networksList.appendChild(networkDiv);
+                            });
+                        } else {
+                            scanStatus.textContent = 'Сети не найдены';
+                        }
+                    })
+                    .catch(error => {
+                        scanStatus.textContent = 'Ошибка сканирования';
+                        console.error('Ошибка:', error);
+                    })
+                    .finally(() => {
+                        scanBtn.disabled = false;
+                    });
+            }
+
+            // Функция выбора сети
+            function selectNetwork(ssid) {
+                document.getElementById('ssid').value = ssid;
+                document.getElementById('password').focus();
+            }
+
+            // Функция загрузки текущей конфигурации
+            function loadCurrentConfig() {
+                fetch('/api/config')
+                    .then(response => response.json())
+                    .then(data => {
+                        const configDiv = document.getElementById('currentConfig');
+                        if (data.configured) {
+                            configDiv.innerHTML = `
+                                <div class="status status-success">
+                                    ✅ Подключено к: <strong>${data.ssid}</strong>
+                                </div>
+                            `;
+                        } else {
+                            configDiv.innerHTML = `
+                                <div class="status status-info">
+                                    ℹ️ Нет сохранённой конфигурации
+                                </div>
+                            `;
+                        }
+                    })
+                    .catch(error => {
+                        const configDiv = document.getElementById('currentConfig');
+                        configDiv.innerHTML = `
+                            <div class="status status-error">
+                                ❌ Ошибка загрузки конфигурации
+                            </div>
+                        `;
+                        console.error('Ошибка:', error);
+                    });
+            }
+
+            // Инициализация при загрузке страницы
+            document.addEventListener('DOMContentLoaded', function() {
+                scanNetworks();
+                loadCurrentConfig();
+                
+                // Обработка отправки формы
+                document.getElementById('wifiForm').addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    const submitBtn = this.querySelector('button[type="submit"]');
+                    const originalText = submitBtn.textContent;
+                    
+                    submitBtn.disabled = true;
+                    submitBtn.textContent = 'Сохранение...';
+                    
+                    const formData = new FormData(this);
+                    fetch('/save', {
+                        method: 'POST',
+                        body: formData
+                    })
+                    .then(response => {
+                        if (response.ok) {
+                            alert('✅ Настройки сохранены!\nУстройство перезагрузится через 3 секунды...');
+                            setTimeout(() => {
+                                window.location.href = '/';
+                            }, 3000);
+                        } else {
+                            throw new Error('Ошибка сохранения');
+                        }
+                    })
+                    .catch(error => {
+                        alert('❌ Ошибка сохранения настроек');
+                        console.error('Ошибка:', error);
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = originalText;
+                    });
+                });
+            });
+        </script>
+    </div>
+    
+    </div>
+</body>
+</html>
