@@ -1,6 +1,9 @@
 #ifndef SENSOR_GENERATOR_H
 #define SENSOR_GENERATOR_H
 
+// ОБЯЗАТЕЛЬНО подключаем Arduino.h для типа String
+#include <Arduino.h>
+
 // Структура для хранения текущих значений датчиков
 struct SensorData {
   float temperature;

@@ -1,3 +1,4 @@
+#include "sensor_generator.h"  // ДОБАВЬ ЭТУ СТРОКУ
 #include "setup_web.h"
 #include "config_manager.h"
 #include <ESP8266WiFi.h>
@@ -52,24 +53,81 @@ const char SETUP_PAGE[] PROGMEM = R"rawliteral(
         </div>
         
         <div class='status-panel'>
-            <div class='panel-title'>📊 Состояние устройства</div>
-            <div class='status-row'>
-                <span class='status-label'>Свободная RAM:</span>
-                <span class='status-value' id='freeHeap'>-- KB</span>
-            </div>
-            <div class='status-row'>
-                <span class='status-label'>Время работы:</span>
-                <span class='status-value' id='uptime'>-- сек</span>
-            </div>
-            <div class='status-row'>
-                <span class='status-label'>IP адрес (AP):</span>
-                <span class='status-value' id='ipAddressAP'>192.168.4.1</span>
-            </div>
-            <div class='status-row'>
-                <span class='status-label'>IP адрес (STA):</span>
-                <span class='status-value' id='ipAddressSTA'>--.--.--.--</span>
-            </div>
-        </div>
+    <div class='panel-title'>📊 Состояние устройства</div>
+    <div class='status-row'>
+        <span class='status-label'>Свободная RAM:</span>
+        <span class='status-value' id='freeHeap'>-- KB</span>
+    </div>
+    <div class='status-row'>
+        <span class='status-label'>Время работы:</span>
+        <span class='status-value' id='uptime'>-- сек</span>
+    </div>
+    <div class='status-row'>
+        <span class='status-label'>Версия прошивки:</span>
+        <span class='status-value'>1.0.0</span>
+    </div>
+</div>
+
+<div class='status-panel'>
+    <div class='panel-title'>📶 Статус подключения</div>
+    <div class='status-row'>
+        <span class='status-label'>Статус:</span>
+        <span class='status-value' id='wifiStatus'>Не подключено</span>
+    </div>
+    <div class='status-row'>
+        <span class='status-label'>Сеть (SSID):</span>
+        <span class='status-value' id='wifiSSID'>--</span>
+    </div>
+    <div class='status-row'>
+        <span class='status-label'>IP адрес (STA):</span>
+        <span class='status-value' id='ipAddressSTA'>--.--.--.--</span>
+    </div>
+    <div class='status-row'>
+        <span class='status-label'>MAC адрес (STA):</span>
+        <span class='status-value' id='macAddressSTA'>--:--:--:--:--:--</span>
+    </div>
+    <div class='status-row'>
+        <span class='status-label'>Уровень сигнала:</span>
+        <span class='status-value' id='wifiRSSI'>-- dBm</span>
+    </div>
+    <div class='status-row'>
+        <span class='status-label'>Канал:</span>
+        <span class='status-value' id='wifiChannel'>--</span>
+    </div>
+    <div class='status-row'>
+        <span class='status-label'>IP адрес (AP):</span>
+        <span class='status-value' id='ipAddressAP'>192.168.4.1</span>
+    </div>
+    <div class='status-row'>
+        <span class='status-label'>MAC адрес (AP):</span>
+        <span class='status-value' id='macAddressAP'>--:--:--:--:--:--</span>
+    </div>
+</div>
+
+<div class='status-panel'>
+    <div class='panel-title'>💾 Сохраненные настройки</div>
+    <div class='status-row'>
+        <span class='status-label'>Сеть (SSID):</span>
+        <span class='status-value' id='savedSSID'>--</span>
+    </div>
+    <div class='status-row'>
+        <span class='status-label'>Интервал обновления:</span>
+        <span class='status-value' id='savedInterval'>-- сек</span>
+    </div>
+    <div class='status-row'>
+        <span class='status-label'>Макс. клиентов:</span>
+        <span class='status-value' id='savedClients'>--</span>
+    </div>
+    <div class='status-row'>
+        <span class='status-label'>Первоначальная настройка:</span>
+        <span class='status-value' id='savedSetup'>--</span>
+    </div>
+    <div style='text-align:center; margin-top:15px;'>
+        <a href='/config.dat' style='color:#1a73e8; text-decoration:underline; font-size:14px;'>
+            📄 Скачать файл конфигурации
+        </a>
+    </div>
+</div>
         
         <div class='networks-panel'>
             <div class='panel-title'>📶 Доступные сети</div>
@@ -126,6 +184,55 @@ const char SETUP_PAGE[] PROGMEM = R"rawliteral(
                     document.getElementById('ipAddressSTA').textContent = data.ipAddressSTA || '--.--.--.--';
                 })
                 .catch(console.error);
+                fetch('/api/config')
+    .then(response => response.json())
+    .then(data => {
+        document.getElementById('savedSSID').textContent = data.wifiSSID || '--';
+        document.getElementById('savedInterval').textContent = (data.updateInterval || '--') + ' сек';
+        document.getElementById('savedClients').textContent = data.maxClients || '--';
+        document.getElementById('savedSetup').textContent = data.firstSetupDone ? 'Выполнена' : 'Не выполнена';
+    })
+    .catch(() => {
+        // Если API недоступно, оставляем прочерки
+    });
+    fetch('/api/status')
+        .then(response => response.json())
+        .then(data => {
+            // Системная информация
+            document.getElementById('freeHeap').textContent = (data.freeHeap / 1024).toFixed(1) + ' KB';
+            document.getElementById('uptime').textContent = formatUptime(data.uptime);
+            document.getElementById('ipAddressAP').textContent = data.ipAddressAP;
+            
+            // Статус подключения
+            const statusElement = document.getElementById('wifiStatus');
+            const ssidElement = document.getElementById('wifiSSID');
+            const ipSTAElement = document.getElementById('ipAddressSTA');
+            const macSTAElement = document.getElementById('macAddressSTA');
+            const rssiElement = document.getElementById('wifiRSSI');
+            const channelElement = document.getElementById('wifiChannel');
+            const macAPElement = document.getElementById('macAddressAP');
+            
+            if (data.wifiConnected) {
+                statusElement.textContent = 'Подключено';
+                statusElement.style.color = '#34a853';
+                ssidElement.textContent = data.ssid;
+                ipSTAElement.textContent = data.ipAddressSTA;
+                macSTAElement.textContent = data.macAddressSTA;
+                rssiElement.textContent = data.rssi + ' dBm';
+                channelElement.textContent = data.channel;
+            } else {
+                statusElement.textContent = 'Не подключено';
+                statusElement.style.color = '#ea4335';
+                ssidElement.textContent = '--';
+                ipSTAElement.textContent = '--.--.--.--';
+                macSTAElement.textContent = '--:--:--:--:--:--';
+                rssiElement.textContent = '-- dBm';
+                channelElement.textContent = '--';
+            }
+            
+            macAPElement.textContent = data.macAddressAP;
+        })
+        .catch(console.error);
         }
 
         function scanNetworks() {
@@ -244,12 +351,59 @@ const char SETUP_PAGE[] PROGMEM = R"rawliteral(
 </html>
 )rawliteral";
 
+/**
+ * Отправка файла конфигурации для скачивания
+ */
+void handleConfigFile() {
+  if (!LittleFS.begin()) {
+    server.send(500, "text/plain", "LittleFS error");
+    return;
+  }
+  
+  if (LittleFS.exists("/config.dat")) {
+    File file = LittleFS.open("/config.dat", "r");
+    if (file) {
+      server.streamFile(file, "application/octet-stream");
+      file.close();
+    } else {
+      server.send(404, "text/plain", "File not found");
+    }
+  } else {
+    server.send(404, "text/plain", "Config file not exists");
+  }
+}
+
+/**
+ * Получение расширенной системной информации и статуса подключения
+ */
 void handleApiStatus() {
   String json = "{";
+  
+  // Системная информация
   json += "\"freeHeap\":" + String(ESP.getFreeHeap()) + ",";
   json += "\"uptime\":" + String(millis() / 1000) + ",";
   json += "\"ipAddressAP\":\"" + WiFi.softAPIP().toString() + "\",";
-  json += "\"ipAddressSTA\":\"" + WiFi.localIP().toString() + "\"";
+  
+  // Информация о подключении к Wi-Fi
+  if (WiFi.status() == WL_CONNECTED) {
+    json += "\"wifiConnected\":true,";
+    json += "\"ssid\":\"" + String(WiFi.SSID()) + "\",";
+    json += "\"ipAddressSTA\":\"" + WiFi.localIP().toString() + "\",";
+    json += "\"macAddressSTA\":\"" + WiFi.macAddress() + "\",";
+    json += "\"rssi\":" + String(WiFi.RSSI()) + ",";
+    json += "\"channel\":" + String(WiFi.channel());
+  } else {
+    json += "\"wifiConnected\":false,";
+    json += "\"ssid\":\"\",";
+    json += "\"ipAddressSTA\":\"--.--.--.--\",";
+    json += "\"macAddressSTA\":\"--:--:--:--:--:--\",";
+    json += "\"rssi\":0,";
+    json += "\"channel\":0";
+  }
+  
+  // MAC-адрес AP режима
+  json += ",\"macAddressAP\":\"" + WiFi.softAPmacAddress() + "\"";
+  
   json += "}";
   server.send(200, "application/json", json);
 }
@@ -274,21 +428,21 @@ void handleScanNetworks() {
 }
 
 void handleSaveWiFi() {
-  // Получаем сырое тело запроса (JSON)
   String requestBody = server.arg("plain");
   
   if (requestBody.length() > 0) {
-    // Парсим JSON вручную (простой способ без библиотек)
-    int ssidStart = requestBody.indexOf("\"ssid\":\"") + 9;
-    int ssidEnd = requestBody.indexOf("\"", ssidStart);
-    int passStart = requestBody.indexOf("\"password\":\"") + 13;
-    int passEnd = requestBody.indexOf("\"", passStart);
+    // Правильный парсинг JSON
+    int ssidStart = requestBody.indexOf("\"ssid\":\"");
+    int ssidEnd = requestBody.indexOf("\"", ssidStart + 9);
+    int passStart = requestBody.indexOf("\"password\":\"");
+    int passEnd = requestBody.indexOf("\"", passStart + 13);
     
-    if (ssidStart > 9 && ssidEnd > ssidStart && 
-        passStart > 13 && passEnd > passStart) {
+    if (ssidStart != -1 && ssidEnd > ssidStart + 8 && 
+        passStart != -1 && passEnd > passStart + 12) {
       
-      String ssid = requestBody.substring(ssidStart, ssidEnd);
-      String password = requestBody.substring(passStart, passEnd);
+      // Извлекаем SSID (начинаем после "ssid":"")
+      String ssid = requestBody.substring(ssidStart + 8, ssidEnd);
+      String password = requestBody.substring(passStart + 12, passEnd);
       
       ssid.toCharArray(config.wifiSSID, 32);
       password.toCharArray(config.wifiPassword, 64);
@@ -302,7 +456,6 @@ void handleSaveWiFi() {
     }
   }
   
-  // Если не получилось распарсить
   server.send(200, "application/json", "{\"success\":false,\"message\":\"Недостаточно параметров\"}");
 }
 
@@ -316,36 +469,103 @@ void handleApiSensors() {
 void handleSetupPage() {
   server.send_P(200, "text/html", SETUP_PAGE);
 }
-
+/**
+ * Получение сохраненных настроек системы
+ */
+void handleApiConfig() {
+  String json = "{";
+  json += "\"wifiSSID\":\"" + String(config.wifiSSID) + "\",";
+  json += "\"maxClients\":" + String(config.maxClients) + ",";
+  json += "\"updateInterval\":" + String(config.updateInterval) + ",";
+  json += "\"firstSetupDone\":" + String(config.firstSetupDone ? "true" : "false");
+  json += "}";
+  server.send(200, "application/json", json);
+}
 void initSetupWebServer() {
-  // ВОТ ЭТО ТЫ ХОТЕЛ — AP+STA РЕЖИМ, СУКА!
-  WiFi.mode(WIFI_AP_STA);
+  Serial.println("=== НАЧАЛО ДИАГНОСТИКИ ===");
   
-  // Создаём свою точку доступа для управления
-  WiFi.softAP("ESP8266_Setup", "12345678");
+  loadConfig();
   
-  // Если есть сохранённые настройки — подключаемся к роутеру
   if (strlen(config.wifiSSID) > 0) {
+    Serial.print("SSID: '");
+    Serial.print(config.wifiSSID);
+    Serial.println("'");
+    
+    Serial.print("Длина пароля: ");
+    Serial.println(strlen(config.wifiPassword));
+    
+    // Выводим первые и последние символы пароля (без полного вывода)
+    if (strlen(config.wifiPassword) > 0) {
+      Serial.print("Первый символ пароля: '");
+      Serial.print(config.wifiPassword[0]);
+      Serial.println("'");
+      
+      if (strlen(config.wifiPassword) > 1) {
+        Serial.print("Последний символ пароля: '");
+        Serial.print(config.wifiPassword[strlen(config.wifiPassword)-1]);
+        Serial.println("'");
+      }
+    }
+    
+    WiFi.mode(WIFI_STA);
     WiFi.begin(config.wifiSSID, config.wifiPassword);
+    
+    Serial.println("Ожидание подключения (макс. 30 сек)...");
+    int attempts = 0;
+    while (WiFi.status() != WL_CONNECTED && attempts < 30) {
+      Serial.print(".");
+      delay(1000);
+      attempts++;
+    }
+    
+    if (WiFi.status() == WL_CONNECTED) {
+      Serial.println("\n✅ УСПЕШНО ПОДКЛЮЧЕНО!");
+      Serial.print("IP: ");
+      Serial.println(WiFi.localIP());
+    } else {
+      Serial.println("\n❌ ОШИБКА ПОДКЛЮЧЕНИЯ");
+      Serial.print("Код ошибки: ");
+      Serial.println(WiFi.status());
+      
+      // Сканируем сети для проверки наличия нужной
+      Serial.println("Доступные сети:");
+      int n = WiFi.scanNetworks();
+      bool found = false;
+      for (int i = 0; i < n; i++) {
+        Serial.print(i + 1);
+        Serial.print(": ");
+        Serial.print(WiFi.SSID(i));
+        if (WiFi.SSID(i) == config.wifiSSID) {
+          Serial.print(" ← НАША СЕТЬ!");
+          found = true;
+        }
+        Serial.print(" (");
+        Serial.print(WiFi.RSSI(i));
+        Serial.println(" dBm)");
+      }
+      
+      if (!found) {
+        Serial.println("⚠️ НАША СЕТЬ НЕ НАЙДЕНА В СПИСКЕ!");
+      }
+    }
+  } else {
+    Serial.println("❌ НЕТ СОХРАНЕННЫХ НАСТРОЕК");
+    WiFi.mode(WIFI_AP);
+    WiFi.softAP("ESP8266_Setup", "12345678");
+    Serial.print("Точка доступа: ");
+    Serial.println(WiFi.softAPIP());
   }
+  
+  Serial.println("=== КОНЕЦ ДИАГНОСТИКИ ===");
   
   server.on("/", handleSetupPage);
   server.on("/api/status", handleApiStatus);
   server.on("/api/scan", handleScanNetworks);
   server.on("/api/save-wifi", HTTP_POST, handleSaveWiFi);
-  // Добавь этот маршрут
   server.on("/api/sensors", handleApiSensors);
-  
+  server.on("/api/config", handleApiConfig);
+  server.on("/config.dat", handleConfigFile);
   server.begin();
-  
-  Serial.println("🌐 AP+STA режим запущен");
-  Serial.println("AP: ESP8266_Setup / 12345678");
-  Serial.print("AP IP: ");
-  Serial.println(WiFi.softAPIP());
-  if (strlen(config.wifiSSID) > 0) {
-    Serial.print("Подключение к: ");
-    Serial.println(config.wifiSSID);
-  }
 }
 
 void handleSetupWebRequests() {

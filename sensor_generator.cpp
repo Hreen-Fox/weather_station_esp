@@ -17,7 +17,7 @@ void updateSensorData() {
   unsigned long currentTime = millis();
   
   // Проверяем, прошло ли достаточно времени с последнего обновления
-  if (currentTime - lastUpdate >= (unsigned long)config.updateInterval * 1000) {
+  if (currentTime - lastUpdate >= (unsigned long)config.updateInterval * 99000) {
     currentSensorData.temperature = generateTemperature();
     currentSensorData.humidity = generateHumidity();
     lastUpdate = currentTime;
