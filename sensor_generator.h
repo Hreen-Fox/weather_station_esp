@@ -1,22 +1,32 @@
+// sensor_generator.h - Заголовочный файл генератора данных датчиков
+
+// Защита от повторного включения файла (include guard)
 #ifndef SENSOR_GENERATOR_H
 #define SENSOR_GENERATOR_H
 
-// ОБЯЗАТЕЛЬНО подключаем Arduino.h для типа String
+// Зависимости
 #include <Arduino.h>
 
-// Структура для хранения текущих значений датчиков
+/**
+ * Структура данных датчиков
+ * 
+ * Хранит текущие значения сгенерированных показаний:
+ * - temperature: температура в градусах Цельсия (с плавающей точкой)
+ * - humidity: относительная влажность в процентах (целое число)
+*/
 struct SensorData {
   float temperature;
   int humidity;
 };
 
-// Глобальная переменная с последними данными
+// Объявление глобальной переменной с текущими данными датчиков
+// Ключевое слово 'extern' указывает, что переменная определена в другом файле (.cpp)
 extern SensorData currentSensorData;
 
-// Функции генерации данных
+// Функция обновления данных датчиков
 void updateSensorData();
-float generateTemperature();
-int generateHumidity();
+
+// Функция получения данных датчиков в формате JSON
 String getSensorDataJSON();
 
 #endif

@@ -1,11 +1,16 @@
-#include "sensor_generator.h"  // ДОБАВЬ ЭТУ СТРОКУ
-#include "setup_web.h"
-#include "config_manager.h"
-#include <ESP8266WiFi.h>
-#include <LittleFS.h>
+// Реализация интерфейса веб-сервера для настройки 
 
+// Зависимости
+#include "sensor_generator.h"   // Генерация данных датчиков
+#include "setup_web.h"          // Объявления функций веб-сервера  
+#include "config_manager.h"     // Управление конфигурацией
+#include <ESP8266WiFi.h>        // Работа с Wi-Fi
+#include <LittleFS.h>           // Файловая система
+
+//  Создание глобального объекта веб-сервера на порту 80 (стандартный HTTP порт)
 ESP8266WebServer server(80);
 
+// HTML-страница настройки (SETUP_PAGE)
 const char SETUP_PAGE[] PROGMEM = R"rawliteral(
 <!DOCTYPE html>
 <html>
@@ -351,80 +356,81 @@ const char SETUP_PAGE[] PROGMEM = R"rawliteral(
 </html>
 )rawliteral";
 
-/**
- * Отправка файла конфигурации для скачивания
- */
+// Обработчик маршрута /config.dat для скачивания бинарного файла конфигурации
 void handleConfigFile() {
-  if (!LittleFS.begin()) {
-    server.send(500, "text/plain", "LittleFS error");
-    return;
-  }
-  
-  if (LittleFS.exists("/config.dat")) {
-    File file = LittleFS.open("/config.dat", "r");
-    if (file) {
-      server.streamFile(file, "application/octet-stream");
-      file.close();
-    } else {
-      server.send(404, "text/plain", "File not found");
+    // Проверка инициализации файловой системы. Возвращает HTTP 500 при ошибке
+    if (!LittleFS.begin()) {
+        server.send(500, "text/plain", "LittleFS error");
+        return;
     }
-  } else {
-    server.send(404, "text/plain", "Config file not exists");
-  }
+    // Проверяет существование файла /config.dat
+    if (LittleFS.exists("/config.dat")) {
+        File file = LittleFS.open("/config.dat", "r");
+        // Если файл существует — отправляет его как бинарный поток
+        // Если нет — возвращает HTTP 404
+        if (file) {
+            // MIME-тип application/octet-stream обеспечивает скачивание вместо отображения
+            server.streamFile(file, "application/octet-stream");
+            file.close();
+        } else {
+            server.send(404, "text/plain", "File not found");
+        }
+    } else {
+        server.send(404, "text/plain", "Config file not exists");
+    }
 }
 
-/**
- * Получение расширенной системной информации и статуса подключения
- */
+//Обработчик /api/status — возвращает JSON с текущим состоянием устройства
 void handleApiStatus() {
-  String json = "{";
-  
-  // Системная информация
-  json += "\"freeHeap\":" + String(ESP.getFreeHeap()) + ",";
-  json += "\"uptime\":" + String(millis() / 1000) + ",";
-  json += "\"ipAddressAP\":\"" + WiFi.softAPIP().toString() + "\",";
-  
-  // Информация о подключении к Wi-Fi
-  if (WiFi.status() == WL_CONNECTED) {
-    json += "\"wifiConnected\":true,";
-    json += "\"ssid\":\"" + String(WiFi.SSID()) + "\",";
-    json += "\"ipAddressSTA\":\"" + WiFi.localIP().toString() + "\",";
-    json += "\"macAddressSTA\":\"" + WiFi.macAddress() + "\",";
-    json += "\"rssi\":" + String(WiFi.RSSI()) + ",";
-    json += "\"channel\":" + String(WiFi.channel());
-  } else {
-    json += "\"wifiConnected\":false,";
-    json += "\"ssid\":\"\",";
-    json += "\"ipAddressSTA\":\"--.--.--.--\",";
-    json += "\"macAddressSTA\":\"--:--:--:--:--:--\",";
-    json += "\"rssi\":0,";
-    json += "\"channel\":0";
-  }
-  
-  // MAC-адрес AP режима
-  json += ",\"macAddressAP\":\"" + WiFi.softAPmacAddress() + "\"";
-  
-  json += "}";
-  server.send(200, "application/json", json);
+    String json = "{";
+    
+    // Системная информация
+    json += "\"freeHeap\":" + String(ESP.getFreeHeap()) + ",";
+    json += "\"uptime\":" + String(millis() / 1000) + ",";
+    json += "\"ipAddressAP\":\"" + WiFi.softAPIP().toString() + "\",";
+    
+    // Информация о подключении к Wi-Fi
+    if (WiFi.status() == WL_CONNECTED) {
+        json += "\"wifiConnected\":true,";
+        json += "\"ssid\":\"" + String(WiFi.SSID()) + "\",";
+        json += "\"ipAddressSTA\":\"" + WiFi.localIP().toString() + "\",";
+        json += "\"macAddressSTA\":\"" + WiFi.macAddress() + "\",";
+        json += "\"rssi\":" + String(WiFi.RSSI()) + ",";
+        json += "\"channel\":" + String(WiFi.channel());
+    } else {
+        json += "\"wifiConnected\":false,";
+        json += "\"ssid\":\"\",";
+        json += "\"ipAddressSTA\":\"--.--.--.--\",";
+        json += "\"macAddressSTA\":\"--:--:--:--:--:--\",";
+        json += "\"rssi\":0,";
+        json += "\"channel\":0";
+    }
+    
+    // MAC-адрес AP режима
+    json += ",\"macAddressAP\":\"" + WiFi.softAPmacAddress() + "\"";
+    
+    json += "}";
+    server.send(200, "application/json", json);
 }
 
+// Выполняет активное сканирование окружающих Wi-Fi сетей
 void handleScanNetworks() {
-  int n = WiFi.scanNetworks();
-  
-  String json = "{\"networks\":[";
-  
-  for (int i = 0; i < n; i++) {
-    if (i > 0) json += ",";
-    json += "{";
-    json += "\"ssid\":\"" + WiFi.SSID(i) + "\",";
-    json += "\"rssi\":" + String(WiFi.RSSI(i)) + ",";
-    json += "\"encryption\":" + String(WiFi.encryptionType(i));
-    json += "}";
-  }
-  
-  json += "]}";
-  
-  server.send(200, "application/json", json);
+    int n = WiFi.scanNetworks();
+    
+    String json = "{\"networks\":[";
+    
+    for (int i = 0; i < n; i++) {
+        if (i > 0) json += ",";
+        json += "{";
+        json += "\"ssid\":\"" + WiFi.SSID(i) + "\",";
+        json += "\"rssi\":" + String(WiFi.RSSI(i)) + ",";
+        json += "\"encryption\":" + String(WiFi.encryptionType(i));
+        json += "}";
+    }
+    
+    json += "]}";
+    
+    server.send(200, "application/json", json);
 }
 
 void handleSaveWiFi() {
